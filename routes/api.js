@@ -28,6 +28,7 @@ module.exports = function (app) {
 
   app.route('/api/books')
     .get(function (req, res){
+      console.log("GET /api/books");
       //response will be array of book objects
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
       Books.find({}, (err, books) => {
@@ -44,17 +45,20 @@ module.exports = function (app) {
     .post(function (req, res){
       //response will contain new book object including atleast _id and title
       let newTitle = req.body.title;
-      if (newTitle) {
+      console.log("post !newTitle: ", !newTitle);
+      if (!newTitle) {
+        res.send("missing required field title");
+      } 
+      else {
         let newBook = new Books({ title: newTitle });
+        console.log("newBook: ", newBook);
         newBook.save((err) => {
-          if (err){ 
-            res.status(500)
-            return console.log("Save error: ", err)
-          };
+          if (err) {
+            res.status(500);
+            return console.log("Save error: ", err);
+          }
           res.json({ _id: newBook._id, title: newBook.title });
         });
-      } else {
-        res.send("missing required field title");
       }
     })
     
@@ -75,24 +79,32 @@ module.exports = function (app) {
     .get(function (req, res){
       //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
       let bookId = req.params.id;
-      if (bookId) {
-        Books.findOne(
-        { _id: ObjectId (bookId)}, 
-        {__v:0, commentcount: 0},
-        (err, book) => {
-          if (err) {
-            res.status(500)
-            return console.log("findOne bookId error: ", err)
-          }
-          if(book) {
-            res.send(book)
-          } else {
-            res.send("no book exists");
-          }
-
-        });
-      } else {
+      console.log("GET /api/books/:id: ", bookId, !bookId);
+      if (!bookId) {
         res.send("missing required field comment");
+        return
+      } 
+      try {
+        let bookIdObject = ObjectId(bookId)
+        Books.findOne(
+          { _id: bookIdObject },
+          { __v: 0, commentcount: 0 },
+          (err, book) => {
+            if (err) {
+              res.send("no book exists");
+              console.log("findOne bookId error: ", err);
+              return;
+            }
+            if (!book) {
+              res.send("no book exists");
+            } else {
+              res.json(book);
+            }
+          }
+        );
+      }catch (e){
+        console.log(`error: ${e}`)
+        res.send("no book exists");
       }
     })
     
