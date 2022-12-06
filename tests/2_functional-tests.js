@@ -129,7 +129,12 @@ suite('Functional Tests', function() {
           .send({comment: "new comment"})
           .end(function (err, res) {
             assert.equal(res.status, 200);
-            assert.hasAllKeys(res.body, ["_id", "title", "comments"]);
+            assert.hasAllKeys(res.body, [
+              "_id",
+              "title",
+              "comments",
+              "commentcount",
+            ]);
             done();
           });
       });
