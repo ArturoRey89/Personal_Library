@@ -31,10 +31,11 @@ module.exports = function (app) {
       //response will be array of book objects
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
       Books.find({}, (err, books) => {
-        if (err) {
+        if (err || !books) {
           res.status(500);
-          console.log("error on find: ", err);
-        } else {
+          res.send("error on find: ", err);
+        } 
+        else {
           res.json(books);
         }
       });
@@ -48,9 +49,10 @@ module.exports = function (app) {
       } else {
         let newBook = new Books({ title: newTitle });
         newBook.save((err) => {
-          if (err) {
+          if (err || !newTitle) {
             res.status(500);
-            return console.log("Save error: ", err);
+            res.send("Save error: ", err);
+            return;
           }
           res.json({ _id: newBook._id, title: newBook.title });
         });
@@ -59,10 +61,10 @@ module.exports = function (app) {
 
     .delete(function (req, res) {
       //if successful response will be 'complete delete successful'
-      Book.deleteMany({}, (err, res) => {
-        if (err) {
-          res.status(500);
-          return console.log("somthing went wrong when deleting");
+      Books.deleteMany(({}), (err, deleteInfo) => {
+        if (err || !deleteInfo.acknowledged) {
+          res.send("somthing went wrong when deleting");
+          return;
         }
         res.send("complete delete successful");
       });
@@ -84,7 +86,6 @@ module.exports = function (app) {
           { __v: 0, commentcount: 0 },
           (err, book) => {
             if (err) {
-              console.log(err);
               res.send("no book exists");
               return;
             }
