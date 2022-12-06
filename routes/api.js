@@ -91,7 +91,8 @@ module.exports = function (app) {
             res.send(book);
           }
         );
-      } catch (e) {
+      } 
+      catch (e) {
         console.log(`error: ${e}`);
         res.send("no book exists");
       }
@@ -118,7 +119,8 @@ module.exports = function (app) {
           book.save();
           res.send(book);
         });
-      } catch (e) {
+      } 
+      catch (e) {
         console.log(`catch error: ${e}`);
         res.send("no book exists");
       }
@@ -126,7 +128,22 @@ module.exports = function (app) {
 
     .delete(function (req, res) {
       //if successful response will be 'delete successful'
-      let bookid = req.params.id;
+      let bookId = req.params.id;
+      try {
+        let bookIdObject = ObjectId(bookId);
+        Books.deleteOne({_id: bookIdObject}, (error,deleteInfo) => {
+          if (error || !deleteInfo.deletedCount) {
+            res.send("no book exists");
+          } else {
+            res.send("delete successful");
+          }
+        });
+      } 
+      catch (e) {
+        console.log(`catch error: ${e}`);
+        res.send("no book exists");
+      }
+
     });
 };
 
