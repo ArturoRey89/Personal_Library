@@ -47,15 +47,11 @@ suite('Functional Tests', function() {
           .post("/api/books")
           .send({title: "New Book"})
           .end(function (err, res) {
+            id = res.body._id;
             assert.equal(res.status, 200);
-            assert.isArray(res.body, "response should be an array");
-            assert.hasAnyKeys(
-              res.body[0], 
-              ["commentcount","title", "_id"],
-              "Books in array should contain all key attr."
-            );
+            assert.isObject(res.body, "response should be an array");
+            assert.hasAnyKeys(res.body, ["title", "_id"], "Books in array should contain all key attr.");
             assert.strictEqual(res.body.title, "New Book")
-            assert.strictEqual(res.body.commentcount, 0);
             done();
           });
       });
@@ -66,7 +62,8 @@ suite('Functional Tests', function() {
           .post("/api/books")
           .end(function (err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.body, "missing required field title");
+            assert.equal(res.text, "missing required field title");
+            assert.isEmpty(res.body, "res.body should be empty")
             done();
           });
       });
@@ -103,7 +100,7 @@ suite('Functional Tests', function() {
           .get("/api/books/" + wrongId)
           .end(function (err, res) {
             assert.equal(res.status, 200);
-            assert.hasAllKeys(res.body, "no book exists");
+            assert.equal(res.text, "no book exists");
             done();
           });
       });
@@ -114,7 +111,8 @@ suite('Functional Tests', function() {
           .get("/api/books/" + id)
           .end(function (err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.body, ["_id", "title", "comments"]);
+            assert.isObject(res.body);
+            assert.hasAllKeys(res.body, ["_id", "title", "comments"]);
             done();
           });
       });
@@ -131,7 +129,7 @@ suite('Functional Tests', function() {
           .send({comment: "new comment"})
           .end(function (err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.body, "missing required field comment");
+            assert.hasAllKeys(res.body, ["_id", "title", "comments"]);
             done();
           });
       });
@@ -142,7 +140,7 @@ suite('Functional Tests', function() {
           .post("/api/books/" + id) 
           .end(function (err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.body, "missing required field comment");
+            assert.equal(res.text, "missing required field comment");
             done();
           });
       });
@@ -154,7 +152,7 @@ suite('Functional Tests', function() {
           .send({ comment: "no id comment" })
           .end(function (err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.body, "no book exists");
+            assert.equal(res.text, "no book exists");
             done();
           });
       });
