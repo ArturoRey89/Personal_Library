@@ -172,7 +172,7 @@ suite('Functional Tests', function() {
           .del("/api/books/" + id)
           .end(function (err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.body, "delete successful");
+            assert.equal(res.text, "delete successful");
             done();
           });
       });
@@ -183,7 +183,7 @@ suite('Functional Tests', function() {
           .del("/api/books/" + wrongId)
           .end(function (err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.body, "no book exists");
+            assert.equal(res.text, "no book exists");
             done();
           });
       });
